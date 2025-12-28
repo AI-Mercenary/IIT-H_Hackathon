@@ -15,10 +15,20 @@ import MoodIcon from '@mui/icons-material/Mood';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import { useAppData } from '../context/AppDataContext';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { api } from '../services/api';
+import { useProfile } from '../context/ProfileContext';
+
+// Define Message Type
+interface Message {
+    id: number;
+    sender: 'user' | 'bot';
+    text: string;
+}
 
 const TodayPage: React.FC = () => {
     const theme = useTheme();
     const { latestWorkout, latestDiet, generateWorkoutPlan, generateMealPlan } = useAppData();
+    const { profile } = useProfile();
 
     // Mock 24h Data (00:00 to 23:00)
     const dailyData = Array.from({ length: 24 }, (_, i) => ({
@@ -27,13 +37,12 @@ const TodayPage: React.FC = () => {
         energy: i < 7 ? 80 : i < 18 ? 60 : 40
     }));
 
-    // Chat logic local state
-    const [messages, setMessages] = useState<{ sender: 'user' | 'bot', text: string }[]>([
-        { sender: 'bot', text: "Good morning! Ready to tackle today? How are your stress and energy levels?" }
+    // Chat Logic State
+    const [messages, setMessages] = useState<Message[]>([
+        { id: 1, sender: 'bot', text: "Good morning! Ready to tackle today? How are your stress and energy levels?" }
     ]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
-    const [showReasoning, setShowReasoning] = useState(false);
 
     // Trackers State
     const [waterGlasses, setWaterGlasses] = useState(3);
@@ -41,24 +50,52 @@ const TodayPage: React.FC = () => {
     const [currentMood, setCurrentMood] = useState<string | null>('happy');
 
     const waterGoal = 8;
+    const isDark = theme.palette.mode === 'dark';
 
-    const handleSend = () => {
-        if (!input.trim()) return;
-        setMessages(prev => [...prev, { sender: 'user', text: input }]);
+    const handleSendMessage = async (text?: string) => {
+        const messageText = text || input;
+        if (!messageText.trim()) return;
+
+        // 1. Add User Message
+        const userMsg: Message = { id: Date.now(), text: messageText, sender: 'user' };
+        setMessages(prev => [...prev, userMsg]);
         setInput('');
         setIsTyping(true);
 
-        setTimeout(() => {
+        try {
+            // 2. Call Backend
+            const result = await api.today.chat({
+                user_id: "user_123", // Replace with actual user ID if available
+                message: messageText,
+                context: {
+                    ...profile,
+                    mood: currentMood,
+                    sleep: sleepQuality,
+                    hydration: waterGlasses
+                }
+            });
+
+            // 3. Add Agent Response
+            const botMsg: Message = {
+                id: Date.now() + 1,
+                text: result.response,
+                sender: 'bot'
+            };
+            setMessages(prev => [...prev, botMsg]);
+
+            // 4. Handle Actions (e.g. generate plan)
+            if (result.data) {
+                if (result.data.workout_plan) generateWorkoutPlan(); // Or pass specific data
+                if (result.data.meal_plan) generateMealPlan();
+            }
+
+        } catch (error) {
+            console.error("Chat error", error);
+            setMessages(prev => [...prev, { id: Date.now(), text: "Sorry, I'm having trouble connecting to the server.", sender: 'bot' }]);
+        } finally {
             setIsTyping(false);
-            setMessages(prev => [...prev, { sender: 'bot', text: "Got it. Based on that, I'm adjusting your plan to be slightly higher intensity since your energy is good." }]);
-
-            if (!latestWorkout) generateWorkoutPlan();
-            if (!latestDiet) generateMealPlan();
-            setShowReasoning(true);
-        }, 1500);
+        }
     };
-
-    const isDark = theme.palette.mode === 'dark';
 
     // Helper for Section Headings
     const SectionHeading = ({ icon, text }: { icon: React.ReactNode, text: string }) => (
@@ -102,8 +139,8 @@ const TodayPage: React.FC = () => {
 
                             {/* Chat Area */}
                             <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                {messages.map((msg, idx) => (
-                                    <Box key={idx} sx={{ alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
+                                {messages.map((msg) => (
+                                    <Box key={msg.id} sx={{ alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
                                         <Card sx={{
                                             borderRadius: msg.sender === 'user' ? '20px 20px 0 20px' : '20px 20px 20px 0',
                                             bgcolor: msg.sender === 'user' ? 'primary.main' : isDark ? '#333' : '#f5f5f5',
@@ -124,19 +161,20 @@ const TodayPage: React.FC = () => {
 
                             {/* Quick Replies */}
                             <Box sx={{ px: 2, py: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                                <Chip label="Make it easier" onClick={() => setInput("Make it easier")} clickable size="small" variant="outlined" />
-                                <Chip label="I have only 20 min" onClick={() => setInput("I have only 20 min")} clickable size="small" variant="outlined" />
-                                <Chip label="Switch to Vegetarian" onClick={() => setInput("Switch to Vegetarian options")} clickable size="small" variant="outlined" />
+                                <Chip label="Make it easier" onClick={() => handleSendMessage("Make it easier")} clickable size="small" variant="outlined" />
+                                <Chip label="I have only 20 min" onClick={() => handleSendMessage("I have only 20 min")} clickable size="small" variant="outlined" />
+                                <Chip label="Switch to Vegetarian" onClick={() => handleSendMessage("Switch to Vegetarian options")} clickable size="small" variant="outlined" />
                             </Box>
 
                             {/* Input Area */}
                             <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider', display: 'flex', gap: 1, bgcolor: isDark ? '#272727' : '#fafafa' }}>
                                 <TextField
                                     fullWidth placeholder="Type a message..." size="small" value={input}
-                                    onChange={e => setInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && handleSend()}
+                                    onChange={e => setInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && handleSendMessage()}
+                                    disabled={isTyping}
                                     sx={{ '& .MuiOutlinedInput-root': { borderRadius: 4, bgcolor: 'background.paper' } }}
                                 />
-                                <IconButton color="primary" onClick={handleSend} sx={{ bgcolor: 'primary.main', color: 'black', '&:hover': { bgcolor: 'primary.dark' } }}>
+                                <IconButton color="primary" onClick={() => handleSendMessage()} disabled={isTyping} sx={{ bgcolor: 'primary.main', color: 'black', '&:hover': { bgcolor: 'primary.dark' } }}>
                                     <SendIcon />
                                 </IconButton>
                             </Box>
