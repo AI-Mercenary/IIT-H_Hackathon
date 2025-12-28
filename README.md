@@ -12,6 +12,18 @@ This project is built with a modern, robust frontend stack:
 - **Material UI (MUI)**: Comprehensive component library for a premium, accessible design system.
 - **Recharts**: Composable charting library for React.
 
+## Agents:
+START → Context Agent
+     ↓
+Planner Agent (uses Context + Profile)
+     ↓  
+Habit Tracker (uses History + Planner)
+     ↓
+Motivation Coach (uses All 3 + Streak)
+     ↓
+END → Frontend (reasoning_trail + recommendations)
+
+
 ## Getting Started
 
 ### Prerequisites

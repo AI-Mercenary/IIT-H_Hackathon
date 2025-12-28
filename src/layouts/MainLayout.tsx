@@ -12,6 +12,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import PersonIcon from '@mui/icons-material/Person';
 import MenuIcon from '@mui/icons-material/Menu';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
 import Footer from '../components/Footer';
 import FloatingChatPanel from '../components/FloatingChatPanel';
 
@@ -28,6 +29,7 @@ const MainLayout: React.FC = () => {
     const navItems = [
         { label: 'Today', path: '/today', icon: <CalendarTodayIcon /> },
         { label: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
+        { label: 'Diet', path: '/diet', icon: <RestaurantIcon /> },
         { label: 'Progress', path: '/progress', icon: <TimelineIcon /> },
     ];
 
