@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Box, Card, CardContent, Typography, TextField, Button, Tabs, Tab, Container, Checkbox, FormControlLabel, Divider, useTheme, IconButton, InputAdornment } from '@mui/material';
+import { Box, Card, CardContent, Typography, TextField, Button, Tabs, Tab, Container, Checkbox, FormControlLabel, Divider, useTheme, IconButton, InputAdornment, alpha } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
-import GoogleIcon from '@mui/icons-material/Google'; // Using MUI Google Icon or generic
+import GoogleIcon from '@mui/icons-material/Google';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
@@ -40,33 +40,33 @@ const AuthPage: React.FC = () => {
     const isDark = theme.palette.mode === 'dark';
 
     return (
-        <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '80vh' }}>
+        <Container maxWidth="xs" sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: '90vh' }}>
             <Box sx={{ textAlign: 'center', mb: 4 }}>
-                <FitnessCenterIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+                <FitnessCenterIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
                 <Typography variant="h4" fontWeight="bold" gutterBottom>
-                    Welcome to AdaFit
+                    AdaFit
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
-                    Your personal context-aware AI coach.
+                    {tab === 0 ? 'Welcome back, athlete.' : 'Start your adaptive journey.'}
                 </Typography>
             </Box>
 
             <Card sx={{
-                borderTop: 4,
-                borderColor: 'primary.main',
-                boxShadow: isDark ? '0 8px 32px rgba(0, 0, 0, 0.5)' : '0 8px 32px rgba(0, 0, 0, 0.1)',
-                background: isDark ? '#1E1E1E' : '#FFFFFF'
+                borderRadius: 4,
+                boxShadow: isDark ? '0 8px 32px rgba(0, 0, 0, 0.5)' : '0 20px 40px rgba(0, 0, 0, 0.1)',
+                background: isDark ? '#1E1E1E' : '#FFFFFF',
+                mb: 4
             }}>
                 <Tabs
                     value={tab}
                     onChange={(_, v) => setTab(v)}
                     variant="fullWidth"
-                    indicatorColor="primary"
                     textColor="primary"
+                    indicatorColor="primary"
                     sx={{ borderBottom: 1, borderColor: 'divider' }}
                 >
-                    <Tab label="Login" />
-                    <Tab label="Sign Up" />
+                    <Tab label="Login" sx={{ py: 3, fontWeight: 'bold' }} />
+                    <Tab label="Create Account" sx={{ py: 3, fontWeight: 'bold' }} />
                 </Tabs>
                 <CardContent sx={{ p: 4 }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -77,6 +77,7 @@ const AuthPage: React.FC = () => {
                                 fullWidth
                                 value={name}
                                 onChange={e => setName(e.target.value)}
+                                slotProps={{ input: { sx: { borderRadius: 2 } } }}
                             />
                         )}
 
@@ -86,6 +87,7 @@ const AuthPage: React.FC = () => {
                             type="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
+                            slotProps={{ input: { sx: { borderRadius: 2 } } }}
                         />
 
                         <TextField
@@ -94,17 +96,20 @@ const AuthPage: React.FC = () => {
                             type={showPassword ? 'text' : 'password'}
                             value={password}
                             onChange={e => setPassword(e.target.value)}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            edge="end"
-                                        >
-                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
+                            slotProps={{
+                                input: {
+                                    sx: { borderRadius: 2 },
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                edge="end"
+                                            >
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }
                             }}
                         />
 
@@ -113,8 +118,9 @@ const AuthPage: React.FC = () => {
                                 <FormControlLabel
                                     control={<Checkbox checked={rememberMe} onChange={e => setRememberMe(e.target.checked)} color="primary" />}
                                     label="Remember me"
+                                    componentsProps={{ typography: { variant: 'body2', color: 'text.secondary' } }}
                                 />
-                                <Button size="small" sx={{ textTransform: 'none' }}>Forgot password?</Button>
+                                <Button size="small" sx={{ textTransform: 'none', fontWeight: 600 }}>Forgot password?</Button>
                             </Box>
                         )}
 
@@ -125,39 +131,49 @@ const AuthPage: React.FC = () => {
                             onClick={handleAuth}
                             sx={{
                                 py: 1.5,
-                                fontSize: '1.1rem',
-                                background: isDark
-                                    ? `linear-gradient(45deg, ${theme.palette.primary.dark} 30%, ${theme.palette.primary.main} 90%)`
-                                    : `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.primary.light} 90%)`,
+                                fontSize: '1rem',
+                                borderRadius: 2,
+                                background: theme.palette.primary.main,
                                 color: 'black',
-                                fontWeight: 'bold'
+                                fontWeight: 'bold',
+                                boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
+                                '&:hover': {
+                                    transform: 'translateY(-1px)',
+                                    boxShadow: `0 12px 24px ${alpha(theme.palette.primary.main, 0.4)}`
+                                }
                             }}
                         >
-                            {tab === 0 ? 'Login' : 'Create Account'}
+                            {tab === 0 ? 'Sign In' : 'Create Account'}
                         </Button>
 
-                        <Divider>OR</Divider>
+                        <Divider sx={{ my: 1 }}>
+                            <Typography variant="caption" color="text.secondary">OR CONTINUE WITH</Typography>
+                        </Divider>
 
                         <Button
                             variant="outlined"
                             size="large"
                             fullWidth
                             startIcon={<GoogleIcon />}
+                            onClick={() => login('User', 'user@gmail.com')}
                             sx={{
                                 py: 1.5,
-                                borderColor: 'divider',
+                                borderRadius: 2,
+                                borderColor: theme.palette.divider,
                                 color: 'text.primary',
-                                '&:hover': { bgcolor: 'action.hover', borderColor: 'divider' }
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                '&:hover': { bgcolor: alpha(theme.palette.text.primary, 0.05), borderColor: 'text.primary' }
                             }}
                         >
-                            Continue with Google
+                            Google
                         </Button>
                     </Box>
                 </CardContent>
             </Card>
 
-            <Typography variant="body2" align="center" color="text.secondary" sx={{ mt: 4 }}>
-                By continuing, you agree to our Terms of Service and Privacy Policy.
+            <Typography variant="body2" align="center" color="text.secondary">
+                By continuing, you agree to our <Box component="span" sx={{ color: 'primary.main', cursor: 'pointer' }}>Terms</Box> and <Box component="span" sx={{ color: 'primary.main', cursor: 'pointer' }}>Privacy Policy</Box>.
             </Typography>
         </Container>
     );

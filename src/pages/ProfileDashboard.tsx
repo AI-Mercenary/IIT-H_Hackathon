@@ -187,6 +187,15 @@ const ProfileDashboard: React.FC = () => {
                             <Chip icon={<FitnessCenterIcon sx={{ fontSize: '1rem !important' }} />} label={profile.fitnessProfile.primaryGoal.replace('_', ' ')} color="primary" sx={{ fontWeight: 'bold', textTransform: 'capitalize' }} />
                             <Chip label={profile.fitnessProfile.experienceLevel} variant="outlined" sx={{ textTransform: 'capitalize', bgcolor: 'background.paper' }} />
                             <Chip label={`${completeness}% Complete`} color={completeness > 80 ? "success" : "warning"} variant="filled" />
+                            <Button
+                                variant="text"
+                                color="error"
+                                size="small"
+                                onClick={() => { updateUser({ name: '', email: '' }); window.location.href = '/auth'; }}
+                                sx={{ ml: 1, textTransform: 'none', fontWeight: 'bold' }}
+                            >
+                                Sign Out
+                            </Button>
                         </Box>
                     </Box>
                 </Paper>
