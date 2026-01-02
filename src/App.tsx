@@ -9,6 +9,7 @@ import DietPage from './pages/DietPage';
 import ProgressPage from './pages/ProgressPage';
 import ProfileDashboard from './pages/ProfileDashboard';
 import ProfileWizard from './pages/ProfileWizard';
+import WorkoutBuilderPage from './pages/WorkoutBuilderPage';
 import TodayPage from './pages/TodayPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -73,6 +74,14 @@ const App: React.FC = () => {
           element={
             <ProtectedRoute>
               <ProfileWizard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="workouts"
+          element={
+            <ProtectedRoute>
+              <WorkoutBuilderPage />
             </ProtectedRoute>
           }
         />

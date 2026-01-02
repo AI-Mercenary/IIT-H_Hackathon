@@ -31,7 +31,7 @@ const WorkoutPage: React.FC = () => {
                     />
 
                     {/* Interactive Input "Bubble" Wrapper */}
-                    <Box sx={{ ml: 8, mb: 4, p: 3, bgcolor: 'white', borderRadius: 4, boxShadow: theme.shadows[1] }}>
+                    <Box sx={{ ml: 8, mb: 4, p: 3, bgcolor: 'background.paper', borderRadius: 4, boxShadow: theme.shadows[1] }}>
                         <Typography variant="subtitle2" gutterBottom sx={{ color: 'text.secondary', mb: 2 }}>
                             HOW ARE YOU FEELING?
                         </Typography>

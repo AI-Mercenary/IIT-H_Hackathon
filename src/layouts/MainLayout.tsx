@@ -143,6 +143,19 @@ const MainLayout: React.FC = () => {
                                 </IconButton>
                             </Tooltip>
 
+                            {isAuthenticated && (
+                                <Tooltip title="Workouts">
+                                    <IconButton
+                                        component={Link}
+                                        to="/workouts"
+                                        color={isActive('/workouts') ? 'primary' : 'default'}
+                                        sx={{ mr: 1 }}
+                                    >
+                                        <FitnessCenterIcon />
+                                    </IconButton>
+                                </Tooltip>
+                            )}
+
                             {isAuthenticated ? (
                                 <>
                                     <Tooltip title="Notifications">
